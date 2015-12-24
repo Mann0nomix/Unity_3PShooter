@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class FireGun : MonoBehaviour {
     LineRenderer gunLine;
-    ParticleSystem gunParticles;
+    //ParticleSystem gunParticles;
     Light gunLight;
     AudioSource gunSound;
-    LineRenderer gunRender;
+    //LineRenderer gunRender;
 
     Ray shotRay;
     RaycastHit shotHit;
+
+	Canvas gameUI;
+	Slider enemyHealth;
+	Text enemyRatio;
 
     float gunRange = 100f;
     float effectDisplayTime = 0.2f;
@@ -17,12 +22,8 @@ public class FireGun : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        //get all components that resemble firing of gun
-        gunLine = GetComponent<LineRenderer>();
-        gunParticles = GetComponent<ParticleSystem>();
-        gunLight = GetComponent<Light>();
-        gunSound = GetComponent<AudioSource>();
-        gunRender = GetComponent<LineRenderer>();
+		initUI ();
+		initGunComponents ();
 	}
 	
 	// Update is called once per frame
@@ -39,7 +40,43 @@ public class FireGun : MonoBehaviour {
         }
 	}
 
-    void Shoot() {
+	private void initUI(){
+		//UI Initializations - Grab Canvas with find object, then grab children for efficiency
+		gameUI = FindObjectOfType<Canvas>();
+
+		//get all child sliders
+		Component[] canvasSliders = gameUI.GetComponentsInChildren<Slider> ();
+		//get all text sliders
+		Component[] canvasTexts = gameUI.GetComponentsInChildren<Text> ();
+
+		//loop through and find specific slider
+		foreach (Slider child in canvasSliders) {
+			if (child.tag.Equals("Enemy HP")) {
+				enemyHealth = child;
+			}
+		}
+
+		//loop through and find specific text
+		foreach (Text child in canvasTexts) {
+			if (child.tag.Equals("Enemy Ratio")) {
+				enemyRatio = child;
+			}
+		}
+
+		//create listener to run delegate function for updating text ratio of enemy
+		enemyHealth.onValueChanged.AddListener (updateEnemyRatio);
+	}
+
+	private void initGunComponents(){
+		//Gun Component Initializations
+		gunLine = GetComponent<LineRenderer>();
+		//gunParticles = GetComponent<ParticleSystem>();
+		gunLight = GetComponent<Light>();
+		gunSound = GetComponent<AudioSource>();
+		//gunRender = GetComponent<LineRenderer>();
+	}
+
+    private void Shoot() {
         //reset timer
         timePassed = 0f;
 
@@ -58,15 +95,21 @@ public class FireGun : MonoBehaviour {
         shotRay.origin = transform.position;
         shotRay.direction = transform.forward;
 
+		gunLine.SetPosition(1, new Vector3(0, 0, gunRange));
         //handle raycast logic to draw line
         if (Physics.Raycast(shotRay, out shotHit)) {
-            gunLine.SetPosition(1, shotHit.point);
-        } else {
-            gunLine.SetPosition(1, new Vector3(0, 0, 100));
+			//do hit animation on boss here
+			if(shotHit.transform.tag.Equals("BallBoss")){
+				enemyHealth.value -= 500;
+			}
         }
     }
 
-    void DisableEffects() {
+	private void updateEnemyRatio(float value){
+		enemyRatio.text = enemyHealth.value + "/" + enemyHealth.maxValue;
+	}
+
+    public void DisableEffects() {
         gunLight.enabled = false;
         gunLine.enabled = false;
     }

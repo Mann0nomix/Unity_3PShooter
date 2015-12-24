@@ -28,7 +28,10 @@ public class ChanMovement : MonoBehaviour {
     void Update() {
         moveX = Input.GetAxis("Horizontal");
         //move backwards should be half the speed
-        moveZ = Mathf.Clamp(Input.GetAxis("Vertical"), -0.5f, 1f);
+        //moveZ = Mathf.Clamp(Input.GetAxis("Vertical"), -0.5f, 1f);
+
+		//normal speed backwards movement
+		moveZ = Input.GetAxis("Vertical");
 
         //set the float values in the animator controller to the values detected by the input device the client is using
         anim.SetFloat("moveX", moveX);
