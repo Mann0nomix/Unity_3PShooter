@@ -7,7 +7,7 @@ public class HpBarScript : MonoBehaviour {
 	private Text playerRatio;
 	// Use this for initialization
 	void Start () {
-		playerHealthBar = this.GetComponent<Slider>();
+		playerHealthBar = GetComponent<Slider>();
 		playerRatio = GetComponentInChildren<Text> ();
 
 		playerHealthBar.enabled = false;

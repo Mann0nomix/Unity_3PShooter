@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets\BossHealth.cs" />
      <Compile Include="Assets\ChanMovement.cs" />
+     <Compile Include="Assets\EnemyAI.cs" />
      <Compile Include="Assets\EnemyHPBar.cs" />
      <Compile Include="Assets\FireGun.cs" />
      <Compile Include="Assets\HpBarScript.cs" />
