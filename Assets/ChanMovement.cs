@@ -10,10 +10,11 @@ public class ChanMovement : MonoBehaviour {
     
     private float moveX;
     private float moveZ;
-    static private bool sheJumps;
+    static private bool startJump;
+	static private bool midJump;
+	static private bool endJump;
     static private bool dash;
-    static private bool goDown;
-    static private bool landed;
+    static private bool notJumping;
     static private bool walking;
     static private bool running;
     static private bool disableDash;
@@ -38,7 +39,7 @@ public class ChanMovement : MonoBehaviour {
         anim.SetFloat("moveZ", moveZ);
 
         //If you are holdin down the key = getkey
-        sheJumps = Input.GetKeyDown("space");
+        startJump = Input.GetKeyDown("space");
         dash = Input.GetKeyDown("return");
 
         //only can dash for 2 seconds
@@ -62,29 +63,47 @@ public class ChanMovement : MonoBehaviour {
     }
 
     void Jump() {
-        //need to do this because the other way does not work with the booleans in C#
-        if (sheJumps) {
-            rb.MovePosition(rb.position + Vector3.up * speed * Time.fixedDeltaTime);
-            anim.SetBool("jump", true);
-        }
+		if (startJump) {  //state for starting the jump
+			endJump = false;
+			midJump = true;
+			anim.SetBool ("jump", true);
+			rb.MovePosition (rb.position + Vector3.up * speed * 9.8f * Time.fixedDeltaTime);
+			notJumping = false;
+		} else {
+			if (!notJumping) {  //state for not jumping
+				if (rb.position.y >= 6) {
+					midJump = false;
+					endJump = true;
+				}
 
-        //if you have slightly left the ground, continue moving upward until you hit 8 points in the y direction, otherwise, come back down
-        if (!landed && rb.position.y > .01) {
-            rb.MovePosition(rb.position + Vector3.up * speed * Time.fixedDeltaTime);
-            if (rb.position.y > 8) {
-                goDown = true;
-            }
-            if (goDown) {
-                rb.MovePosition(rb.position + Vector3.down * Time.fixedDeltaTime / 4);
-                goDown = false;
+				//if you have slightly left the ground, continue moving upward until you hit 8 points in the y direction, otherwise, come back down
+				if (midJump) {  //state for middle of jump
+					anim.SetBool ("jump", true);
+					rb.MovePosition (rb.position + Vector3.up * speed * Time.fixedDeltaTime);
+					midJump = true;
+				} else {
+					if (endJump) {  //state for ending of jump
+						//Create a vector direction which consists of the difference between the target position vector and the current position vector
+						if (rb.position.y > 0) {
+							//Logic to lerp entire vector position of a rigidbody by direction
+							//Vector3 direction = new Vector3 (moveX, 0, moveZ) - rb.position;
+							//rb.MovePosition (rb.position + direction * speed * 2 * Time.fixedDeltaTime); //double speed to fake acceleration on jump
 
-                if (rb.position.y < 1) {
-                    landed = true;
-                }
-            }
-        } else {
-            anim.SetBool("jump", false);
-        }
+							//Logic to lerp y position of a rigid body only
+							Vector3 posChange = rb.position;
+							posChange.y = Mathf.MoveTowards (posChange.y, 0, speed * 2.5f * Time.fixedDeltaTime);
+							rb.position = posChange;
+							anim.SetBool ("jump", false);
+						} 
+
+						if(rb.position.y < .0005) {  //I had to ballpark this number because the math above will still push past 0. This logic stops it from going below 0
+							endJump = false;
+							notJumping = true;
+						}
+					}
+				}
+			}
+		}
     }
 
     IEnumerator TimeDash() {

@@ -2,16 +2,16 @@
 using System.Collections;
 
 public class EnemyAI : MonoBehaviour {
-	private NavMeshAgent bossAgent;
-	[SerializeField]
-	private Rigidbody playerBody;
+	//private NavMeshAgent bossAgent;
+	//[SerializeField]
+	//private Rigidbody playerBody;
 	private bool onLeft;
 	private Transform startTransform;
 
 	// Use this for initialization
 	void Start () {
-		bossAgent = GetComponent<NavMeshAgent> ();
-		playerBody = GameObject.FindGameObjectWithTag("Mychan").GetComponent<Rigidbody> ();
+		//bossAgent = GetComponent<NavMeshAgent> ();
+		//playerBody = GameObject.FindGameObjectWithTag("Mychan").GetComponent<Rigidbody> ();
 		onLeft = true;
 		StartCoroutine (bossMove());
 	}
@@ -25,11 +25,11 @@ public class EnemyAI : MonoBehaviour {
 		if (!onLeft) {
 			//move right
 			//transform.position = new Vector3(20 * Time.deltaTime, 3, transform.position.z);
-			transform.position = Vector3.Lerp(transform.position, new Vector3(30, 6, transform.position.z), Time.deltaTime);
+			transform.position = Vector3.Lerp(transform.position, new Vector3(30, transform.position.y, transform.position.z), Time.deltaTime);
 		} else {
 			//move left
 			//transform.position = new Vector3(-20 * Time.deltaTime, 3, transform.position.z);
-			transform.position = Vector3.Lerp(transform.position, new Vector3(-30, 6, transform.position.z), Time.deltaTime);
+			transform.position = Vector3.Lerp(transform.position, new Vector3(-30, transform.position.y, transform.position.z), Time.deltaTime);
 		}
 	}
 
